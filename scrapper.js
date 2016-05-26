@@ -17,7 +17,10 @@ const DREGREELISTURL = "!gri_ass.lleu_portada_g?p_curso_init=";
 
 
 // Global JSON ariable carreras
-var carreras ={};
+var carreras ={
+	"size":0,
+	"degrees": {}
+};
 
 
 // Scraps and stores first lleu's view: Degrees.
@@ -25,44 +28,54 @@ request(BASEURL+DREGREELISTURL+COURSEYEAR, {encoding:'utf8'}, function (err, res
 
 		if (!err && response.statusCode == 200) {
 
-		//Loads the whole html to be parsed
-		$ = cheerio.load(body);
+			//Loads the whole html to be parsed
+			$ = cheerio.load(body);
+			
+			//Selects all degrees
+			$('li a', '.listaTitulaciones' ).each(function(i, elem) {
 
-		//Selects all degrees
-		$('li a', '.listaTitulaciones' ).each(function(i, elem) {
-
-			// Fills the JSON=> id: [name, url]
-			var url=$(this)[0].attribs.href;
-			var id=url.slice(-3);
-			carreras[id]= [$(this)[0].children[0].data, url];
+				// Fills the JSON=> 
+				//    { 
+				//		"size":N,
+				//		"degrees" :
+				//			[
+				//    			"id": [name, url]
+				//			]		
+				//	  }
+				
+				var url=$(this)[0].attribs.href;
+				var degreeId=parseInt(url.slice(-3), 10);
+				
+				// Add the degree to JSON var: carreras 
+				carreras.degrees[degreeId] =  [$(this)[0].children[0].data, url];
+				carreras.size=parseInt(carreras.size, 10)+1;
+				
 			});
-
-		
-		console.log("Start scrapping degrees");
 		
 
+			// Start scraping urls
+			for(var key in carreras.degrees){
+				
+				// Degree url generation
+				var degreeUrl=carreras.degrees[key][1];
+				
+				//console.log("Carrera: "+i+". URL:"+ degreeUrl);
+				console.log("-------------------------", degreeUrl);
 
-///// -------- Falta comunicar cuando termina de guardar el json al siguiente for
+//////====================== TODO: sincronizar el request con cada url ===========
 
-		// Start scraping urls
-		for(i=0; i<carreras.length; i++){
-			
-			// Degree url generation
-			var degreeUrl=carreras[i][1];
-			console.log("Carrera: "+i+". URL:"+ degreeUrl);
-			
-			// Scraps and stores all subjects
-			request(BASEURL+degreeUrl, {encoding:'utf8'}, function (err, response, body) {
-					
-					if (!err && response.statusCode == 200) {
+				// Scraps and stores all subjects
+				request(BASEURL+degreeUrl, {encoding:'utf8'}, function (err, response, body) {
 						
-						// Loads degree info
-						$ = cheerio.load(body);
+						if (!err && response.statusCode == 200) {
+							console.log(BASEURL+degreeUrl);
+							// Loads degree info
+							$ = cheerio.load(body);
 
-					}else {console.log("Error 2o request, asignaturas:", err);}
-			});
+						}else {console.log("Error 2o request, asignaturas:", err);}
+				});
 
-		}
+			}
 
 		}else {console.log("Error 1er request, carreras", err);}
 
