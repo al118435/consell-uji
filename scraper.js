@@ -1,7 +1,7 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var iconv = require('iconv-lite');
-
+var jsonfile = require('jsonfile');
 /*
 // Models for mongo
 var mongoose = require('mongoose');
@@ -51,7 +51,10 @@ request(BASEURL+DREGREELISTURL+COURSEYEAR, {encoding:'utf8'}, function (err, res
 				carreras.size=parseInt(carreras.size, 10)+1;
 				
 			});
-		
+			
+			var file = 'carreras.json';
+
+			jsonfile.writeFile(file, carreras, function(err){console.error(err);});
 
 			// Start scraping urls
 			for(var key in carreras.degrees){
