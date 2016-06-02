@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
+/* GET home page.  */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
@@ -13,6 +13,14 @@ app.get('/',function(req,res){
 });
 
 
+// 
+app.get('/', function(req, res){
+
+}
+
+
+
+// Public files. Normatives & general info
 app.get('/public/files/:file',function(req,res){
 	res.sendFile("public/files/"+req.params.file,{root:application_root});
 });
